@@ -1,4 +1,4 @@
-import { Meal } from "./meals";
+import { Meal, OrderWithoutId } from "./meals";
 import { User } from "./user.js";
 import { Order } from "./meals";
 import { fetchError } from "./errors.js";
@@ -49,24 +49,39 @@ function orderMeal(id: number) {
       price: currentMeal.price,
       calories: currentMeal.calories,
     };
-    thomas.orderMeal(meal);
+    myUser.orderMeal(meal);
   } else {
     console.log("Mauvais repas selectionné");
   }
 }
 
 function setUserWallet() {
-  try {
-    const wallet = localStorage.getItem("currentWallet");
+  const wallet = localStorage.getItem("currentWallet");
+  const idWallet = document.getElementById("userWallet");
+  if (!idWallet) {
+    console.log("idWallet n'existe pas");
+  } else {
     if (wallet) {
-      document.getElementById("userWallet");
+      idWallet.innerHTML = "Mon Wallet: " + wallet;
+    } else {
+      idWallet.innerHTML = `Mon Wallet: ${String(myUser.wallet)}`;
     }
-    const data: Meal[] = await response.json();
-    return data;
-  } catch (erreur: any) {
-    return erreur.message;
   }
 }
-const thomas = new User(0, "Thomas", 5000);
+
+function setOrdersHistory() {
+  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  const historyId = document.getElementById(
+    "ordersHistory",
+  ) as HTMLDataListElement;
+  orders.forEach((order: OrderWithoutId) => {
+    const div = document.createElement("div");
+    div.innerHTML = `<div class="m-2 bg-secondary"><li class="list-unstyled">Repas: ${order.meals[0].name}</li><li class="list-unstyled" >Calories: ${order.meals[0].calories}</li>
+        <li class="list-unstyled">Prix: ${order.total}€</li></div>`;
+    historyId.appendChild(div);
+  });
+}
+const myUser = new User(0, "Thomas", 5000);
 setMeals();
 setUserWallet();
+setOrdersHistory();

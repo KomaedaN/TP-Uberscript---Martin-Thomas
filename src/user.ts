@@ -46,7 +46,9 @@ export class User {
       meals: [mealDraft as Meal],
       total: meal.price,
     };
-    localStorage.setItem(`${meal.name}`, JSON.stringify(orderWithoutId));
+    const orderHistory = JSON.parse(localStorage.getItem("orders") || "[]");
+    orderHistory.push(orderWithoutId);
+    localStorage.setItem("orders", JSON.stringify(orderHistory));
     localStorage.setItem("currentWallet", String(this.wallet));
   }
 }
