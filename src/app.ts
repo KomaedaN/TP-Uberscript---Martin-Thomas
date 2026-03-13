@@ -94,7 +94,11 @@ function setTotalOrdersCost() {
   const costsOrders = document.getElementById("ordersTotal");
   const totalPrice = localStorage.getItem("totalPrice");
   if (costsOrders) {
-    costsOrders.innerHTML = `Total du prix commandes: ${totalPrice} euros`;
+    if (totalPrice) {
+      costsOrders.innerHTML = `Total du prix commandes: ${totalPrice} euros HT`;
+    } else {
+      costsOrders.innerHTML = `Total du prix commandes: 0 euros HT`;
+    }
   }
 }
 
@@ -103,7 +107,6 @@ function addToMenu(meal: Meal) {
   const allOrder = document.getElementById("allOrder") as HTMLDivElement;
   allOrder.innerHTML += `${meal.name} + ${meal.price}euros <br>`;
   setTotalPriceForAllMenu();
-  console.log(selectedMeals);
 }
 
 function setTotalPriceForAllMenu() {
@@ -124,6 +127,7 @@ function addMultipleOrders() {
     orderMeal(meal.id);
   });
   selectedMeals = [];
+  document.getElementById("allOrder")!.innerHTML = "";
   const ht = document.getElementById("menuTotalHT") as HTMLElement;
   const ttc = document.getElementById("menuTotalTTC") as HTMLElement;
   ht.innerHTML = `0 euros`;

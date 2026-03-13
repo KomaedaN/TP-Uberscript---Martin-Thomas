@@ -98,7 +98,12 @@ function setTotalOrdersCost() {
     const costsOrders = document.getElementById("ordersTotal");
     const totalPrice = localStorage.getItem("totalPrice");
     if (costsOrders) {
-        costsOrders.innerHTML = `Total du prix commandes: ${totalPrice} euros`;
+        if (totalPrice) {
+            costsOrders.innerHTML = `Total du prix commandes: ${totalPrice} euros HT`;
+        }
+        else {
+            costsOrders.innerHTML = `Total du prix commandes: 0 euros HT`;
+        }
     }
 }
 function addToMenu(meal) {
@@ -106,7 +111,6 @@ function addToMenu(meal) {
     const allOrder = document.getElementById("allOrder");
     allOrder.innerHTML += `${meal.name} + ${meal.price}euros <br>`;
     setTotalPriceForAllMenu();
-    console.log(selectedMeals);
 }
 function setTotalPriceForAllMenu() {
     let totalPriceHT = 0;
@@ -125,6 +129,11 @@ function addMultipleOrders() {
         orderMeal(meal.id);
     });
     selectedMeals = [];
+    document.getElementById("allOrder").innerHTML = "";
+    const ht = document.getElementById("menuTotalHT");
+    const ttc = document.getElementById("menuTotalTTC");
+    ht.innerHTML = `0 euros`;
+    ttc.innerHTML = `0 euros`;
 }
 const wallet = localStorage.getItem("currentWallet");
 const myUser = new User(0, "Thomas", wallet ? Number(wallet) : 5000);
