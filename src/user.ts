@@ -1,6 +1,8 @@
-import { Order } from "./meals";
+import { Meal } from "./meals";
+import { Order, OrderWithoutId, MealDraft } from "./meals";
+import { notEnougthMoneyError } from "./errors.js";
 
-class User {
+export class User {
   id: number;
   name: string;
   wallet: number;
@@ -10,5 +12,41 @@ class User {
     this.id = id;
     this.name = name;
     this.wallet = wallet;
+  }
+  orderMeal(meal: Meal) {
+    try {
+      if (this.wallet < meal.price) {
+        throw new notEnougthMoneyError(
+          `pas assez d'argent sur le compte: il reste ${this.wallet} euros sur votre compte et le prix du plat est de ${meal.price} euros`,
+        );
+      }
+      this.wallet -= meal.price;
+
+      this.addOrder(meal);
+      console.log("commande validé solde restant: " + this.wallet);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  addOrder(meal: Meal) {
+    const order: Order = {
+      id: meal.id,
+      meals: [meal],
+      total: meal.price,
+    };
+    this.orders.push(order);
+
+    const mealDraft: MealDraft = {
+      name: meal.name,
+      price: meal.price,
+      calories: meal.calories,
+    };
+
+    const orderWithoutId: OrderWithoutId = {
+      meals: [mealDraft as Meal],
+      total: meal.price,
+    };
+    localStorage.setItem(`${meal.name}`, JSON.stringify(orderWithoutId));
+    localStorage.setItem("currentWallet", String(this.wallet));
   }
 }

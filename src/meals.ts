@@ -10,3 +10,6 @@ export interface Order {
   meals: Meal[];
   total: number;
 }
+
+export type MealDraft = Partial<Meal>;
+export type OrderWithoutId = Omit<Order, "id">;
