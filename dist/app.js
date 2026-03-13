@@ -55,6 +55,8 @@ function orderMeal(id) {
             calories: currentMeal.calories,
         };
         myUser.orderMeal(meal);
+        setOrdersHistory();
+        setUserWallet();
     }
     else {
         console.log("Mauvais repas selectionné");
@@ -78,14 +80,16 @@ function setUserWallet() {
 function setOrdersHistory() {
     const orders = JSON.parse(localStorage.getItem("orders") || "[]");
     const historyId = document.getElementById("ordersHistory");
+    historyId.innerHTML = "";
     orders.forEach((order) => {
         const div = document.createElement("div");
-        div.innerHTML = `<div class="m-2 bg-secondary"><li class="list-unstyled">Repas: ${order.meals[0].name}</li><li class="list-unstyled" >Calories: ${order.meals[0].calories}</li>
+        div.innerHTML += `<div class="m-2 bg-secondary"><li class="list-unstyled">Repas: ${order.meals[0].name}</li><li class="list-unstyled" >Calories: ${order.meals[0].calories}</li>
         <li class="list-unstyled">Prix: ${order.total}€</li></div>`;
         historyId.appendChild(div);
     });
 }
-const myUser = new User(0, "Thomas", 5000);
+const wallet = localStorage.getItem("currentWallet");
+const myUser = new User(0, "Thomas", wallet ? Number(wallet) : 5000);
 setMeals();
 setUserWallet();
 setOrdersHistory();
