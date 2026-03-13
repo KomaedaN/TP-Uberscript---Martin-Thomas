@@ -4,6 +4,7 @@ import { Order } from "./meals";
 import { fetchError } from "./errors.js";
 
 let meals: Meal[] = [];
+let selectedMeals: Meal[] = [];
 
 async function getMeals(): Promise<Meal[]> {
   const apiUrl = "https://keligmartin.github.io/api/meals.json";
@@ -27,10 +28,13 @@ function setMeals() {
       data.forEach((meal) => {
         const div = document.createElement("div");
         div.innerHTML = `<div class="m-2 bg-primary"><li class="list-unstyled">Repas: ${meal.name}</li><li class="list-unstyled" >Calories: ${meal.calories}</li>
-        <li class="list-unstyled">Prix: ${meal.price}€</li><button class="orderMeal">Commander</button></div>`;
+        <li class="list-unstyled">Prix: ${meal.price}€</li><button class="orderMeal">Commander</button><button class="addToMenu">Ajouter au panier</button></div>`;
 
         div.querySelector(".orderMeal")?.addEventListener("click", () => {
           orderMeal(meal.id);
+        });
+        div.querySelector(".addToMenu")?.addEventListener("click", () => {
+          addToMenu(meal);
         });
         id.appendChild(div);
       });
@@ -52,6 +56,7 @@ function orderMeal(id: number) {
     myUser.orderMeal(meal);
     setOrdersHistory();
     setUserWallet();
+    setTotalOrdersCost();
   } else {
     console.log("Mauvais repas selectionné");
   }
@@ -85,8 +90,53 @@ function setOrdersHistory() {
   });
 }
 
+function setTotalOrdersCost() {
+  const costsOrders = document.getElementById("ordersTotal");
+  const totalPrice = localStorage.getItem("totalPrice");
+  if (costsOrders) {
+    costsOrders.innerHTML = `Total du prix commandes: ${totalPrice} euros`;
+  }
+}
+
+function addToMenu(meal: Meal) {
+  selectedMeals.push(meal);
+  const allOrder = document.getElementById("allOrder") as HTMLDivElement;
+  allOrder.innerHTML += `${meal.name} + ${meal.price}euros <br>`;
+  setTotalPriceForAllMenu();
+  console.log(selectedMeals);
+}
+
+function setTotalPriceForAllMenu() {
+  let totalPriceHT: number = 0;
+  let totalPriceTTC: number = 0;
+  selectedMeals.forEach((meal) => {
+    totalPriceHT += meal.price;
+    totalPriceTTC += meal.price * 2;
+  });
+  const ht = document.getElementById("menuTotalHT") as HTMLElement;
+  const ttc = document.getElementById("menuTotalTTC") as HTMLElement;
+  ht.innerHTML = `${totalPriceHT} euros`;
+  ttc.innerHTML = `${totalPriceTTC} euros`;
+}
+
+function addMultipleOrders() {
+  selectedMeals.forEach((meal) => {
+    orderMeal(meal.id);
+  });
+  selectedMeals = [];
+  const ht = document.getElementById("menuTotalHT") as HTMLElement;
+  const ttc = document.getElementById("menuTotalTTC") as HTMLElement;
+  ht.innerHTML = `0 euros`;
+  ttc.innerHTML = `0 euros`;
+}
 const wallet = localStorage.getItem("currentWallet");
 const myUser = new User(0, "Thomas", wallet ? Number(wallet) : 5000);
+
+document.getElementById("calculateMenuBtn")?.addEventListener("click", () => {
+  addMultipleOrders();
+});
+
 setMeals();
 setUserWallet();
 setOrdersHistory();
+setTotalOrdersCost();

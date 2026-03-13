@@ -50,5 +50,14 @@ export class User {
     orderHistory.push(orderWithoutId);
     localStorage.setItem("orders", JSON.stringify(orderHistory));
     localStorage.setItem("currentWallet", String(this.wallet));
+    localStorage.setItem("totalPrice", String(this.displayTotalOrdresCost()));
+  }
+  displayTotalOrdresCost() {
+    let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+    let cost: number = 0;
+    orders.forEach((order: OrderWithoutId) => {
+      cost += order.total;
+    });
+    return cost;
   }
 }

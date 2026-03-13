@@ -7,8 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var _a;
 import { User } from "./user.js";
 let meals = [];
+let selectedMeals = [];
 function getMeals() {
     return __awaiter(this, void 0, void 0, function* () {
         const apiUrl = "https://keligmartin.github.io/api/meals.json";
@@ -31,12 +33,15 @@ function setMeals() {
         meals = data;
         const id = document.getElementById("mealList");
         data.forEach((meal) => {
-            var _a;
+            var _a, _b;
             const div = document.createElement("div");
             div.innerHTML = `<div class="m-2 bg-primary"><li class="list-unstyled">Repas: ${meal.name}</li><li class="list-unstyled" >Calories: ${meal.calories}</li>
-        <li class="list-unstyled">Prix: ${meal.price}€</li><button class="orderMeal">Commander</button></div>`;
+        <li class="list-unstyled">Prix: ${meal.price}€</li><button class="orderMeal">Commander</button><button class="addToMenu">Ajouter au panier</button></div>`;
             (_a = div.querySelector(".orderMeal")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
                 orderMeal(meal.id);
+            });
+            (_b = div.querySelector(".addToMenu")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
+                addToMenu(meal);
             });
             id.appendChild(div);
         });
@@ -57,6 +62,7 @@ function orderMeal(id) {
         myUser.orderMeal(meal);
         setOrdersHistory();
         setUserWallet();
+        setTotalOrdersCost();
     }
     else {
         console.log("Mauvais repas selectionné");
@@ -88,8 +94,44 @@ function setOrdersHistory() {
         historyId.appendChild(div);
     });
 }
+function setTotalOrdersCost() {
+    const costsOrders = document.getElementById("ordersTotal");
+    const totalPrice = localStorage.getItem("totalPrice");
+    if (costsOrders) {
+        costsOrders.innerHTML = `Total du prix commandes: ${totalPrice} euros`;
+    }
+}
+function addToMenu(meal) {
+    selectedMeals.push(meal);
+    const allOrder = document.getElementById("allOrder");
+    allOrder.innerHTML += `${meal.name} + ${meal.price}euros <br>`;
+    setTotalPriceForAllMenu();
+    console.log(selectedMeals);
+}
+function setTotalPriceForAllMenu() {
+    let totalPriceHT = 0;
+    let totalPriceTTC = 0;
+    selectedMeals.forEach((meal) => {
+        totalPriceHT += meal.price;
+        totalPriceTTC += meal.price * 2;
+    });
+    const ht = document.getElementById("menuTotalHT");
+    const ttc = document.getElementById("menuTotalTTC");
+    ht.innerHTML = `${totalPriceHT} euros`;
+    ttc.innerHTML = `${totalPriceTTC} euros`;
+}
+function addMultipleOrders() {
+    selectedMeals.forEach((meal) => {
+        orderMeal(meal.id);
+    });
+    selectedMeals = [];
+}
 const wallet = localStorage.getItem("currentWallet");
 const myUser = new User(0, "Thomas", wallet ? Number(wallet) : 5000);
+(_a = document.getElementById("calculateMenuBtn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
+    addMultipleOrders();
+});
 setMeals();
 setUserWallet();
 setOrdersHistory();
+setTotalOrdersCost();
